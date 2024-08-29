@@ -1,0 +1,124 @@
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
+// Firebase 설정
+const firebaseConfig = {
+  apiKey: "AIzaSyAH2u_y7ccT3HydsGlQaAeCP30FSDj8VO8",
+  authDomain: "edgarbae-ed532.firebaseapp.com",
+  projectId: "edgarbae-ed532",
+  storageBucket: "edgarbae-ed532.appspot.com",
+  messagingSenderId: "1045233859421",
+  appId: "1:1045233859421:web:91e70b8a4c5eec7ef186b4",
+  measurementId: "G-Z5769DQ9CH"
+};
+
+// Firebase 초기화
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+const questions = [
+  "투자할 때 당신의 위험 선호도는 어떠신가요?",
+  "수입을 늘리기 위해 어떤 방법을 선호하시나요?",
+  "재정 관리에 있어서 당신의 스타일은 어떠신가요?",
+  "장기적인 재산 증식에 대한 당신의 접근 방식은?"
+];
+
+const options = [
+  ['안전 추구', '균형 유지', '위험 감수', '고위험 고수익'],
+  ['현재 직업 집중', '부업 시도', '사업 시작', '투자 다각화'],
+  ['엄격한 예산', '유연한 지출', '자동 저축', '수입 증대 집중'],
+  ['안정적 저축', '부동산 투자', '주식 시장 활용', '다양한 자산 분산']
+];
+
+const strategyDescriptions = [
+  ["보수적", "균형적", "공격적", "혁신적"],
+  ["전문성 강화", "다각화", "기업가적", "포트폴리오"],
+  ["절약 중심", "유연한", "시스템적", "성장 지향적"],
+  ["안정 지향", "실물 자산", "시장 중심", "다각화"]
+];
+
+function App() {
+  const [selectedAnswers, setSelectedAnswers] = useState(new Array(questions.length).fill(null));
+  const [result, setResult] = useState(null);
+
+  const selectAnswer = (questionIndex, answerIndex) => {
+    const newAnswers = [...selectedAnswers];
+    newAnswers[questionIndex] = answerIndex;
+    setSelectedAnswers(newAnswers);
+  };
+
+  useEffect(() => {
+    if (selectedAnswers.every(answer => answer !== null)) {
+      showResult();
+    }
+  }, [selectedAnswers]);
+
+  const showResult = () => {
+    const strategies = selectedAnswers.map((answer, index) => strategyDescriptions[index][answer]);
+    const personalStrategy = generatePersonalStrategy(strategies);
+    setResult(personalStrategy);
+  };
+
+  const generatePersonalStrategy = (strategies) => {
+    const introductions = [
+      "당신의 재산 증식 전략은 다음과 같습니다:",
+      "당신에게 적합한 자산 구축 접근 방식은:",
+      "재정적 성공을 위한 당신만의 로드맵:",
+      "부자가 되기 위한 당신의 개인화된 전략:"
+    ];
+    const conclusions = [
+      "이러한 접근 방식은 당신의 재정 목표 달성에 도움이 될 것입니다.",
+      "이 전략을 따르면 장기적으로 안정적인 자산 증식이 가능할 것입니다.",
+      "당신의 독특한 접근 방식은 재정적 자유를 향한 길을 열어줄 것입니다.",
+      "이 전략을 실행하면서 지속적으로 학습하고 조정해 나가세요."
+    ];
+
+    const intro = introductions[Math.floor(Math.random() * introductions.length)];
+    const conclusion = conclusions[Math.floor(Math.random() * conclusions.length)];
+
+    return `${intro}
+            1. 투자 전략: ${strategies[0]} 접근 방식으로 자산을 관리하세요.
+            2. 수입 증대: ${strategies[1]} 전략을 통해 수입원을 다각화하세요.
+            3. 재정 관리: ${strategies[2]} 방식으로 자금을 효율적으로 관리하세요.
+            4. 장기 계획: ${strategies[3]} 전략으로 지속 가능한 성장을 추구하세요.
+            ${conclusion}`;
+  };
+
+  const resetTest = () => {
+    setSelectedAnswers(new Array(questions.length).fill(null));
+    setResult(null);
+  };
+
+  return (
+    <div className="container">
+      <h1>재산 증식 전략 테스트</h1>
+      {!result ? (
+        questions.map((question, questionIndex) => (
+          <div key={questionIndex} className="question">
+            <div className="question-text">{question}</div>
+            <div className="answer-grid">
+              {options[questionIndex].map((option, optionIndex) => (
+                <button
+                  key={optionIndex}
+                  className={`answer-button ${selectedAnswers[questionIndex] === optionIndex ? 'selected' : ''}`}
+                  onClick={() => selectAnswer(questionIndex, optionIndex)}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))
+      ) : (
+        <div id="result">
+          <h2>당신의 재산 증식 전략 분석</h2>
+          <p>{result}</p>
+          <button id="return-button" onClick={resetTest}>다시 하기</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
